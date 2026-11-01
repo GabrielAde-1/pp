@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pocket-Porridge — Breakfast for the dressed</title>
+  <link rel="icon" href="pocket-porridge-bg.png" />
+  <link rel="stylesheet" href="pocket-porridge.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="#"><img src="pocket-porridge.png" alt="Pocket-Porridge" style="height:48px; width:58px; object-fit:cover; object-position:center; display:block;" /></a>
+    <div class="nav-links">
+      <a href="#flavours">Flavours</a>
+      <a href="#story">Our story</a>
+      <a class="nav-cta" href="pocket-porridge-unavailable.html">Shop cups</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">A proper breakfast · Pocket-sized  · Now selling at QMGS</div>
+        <div class="eyebrow"></div>
+        <h1>Porridge.<br><em>In a pocket.</em></h1>
+        <p class="intro">Hot, hearty porridge in a cup engineered to slide neatly into your blazer side pocket. Work-ready. Commute-friendly. Not at all soggy.</p>
+        <div class="actions">
+          <a class="button" href="#flavours">Try it now</a>
+          <a class="button light" href="#story">How it works</a>
+        </div>
+      </div>
+      <div class="hero-art-wrap">
+        <div class="eyebrow">Pocket-sized porridge</div>
+        <div class="hero-art">
+          <img src="pocket-porridge.png" alt="A cup of Pocket-Porridge" style="width:100%; height:100%; min-height:680px; object-fit:cover;" />
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true"><div>FULL OF OATS ✦ ONLY GOOD STUFF ✦ FULL OF OATS ✦ ONLY GOOD STUFF ✦ &nbsp;</div><div>FULL OF OATS ✦ ONLY GOOD STUFF ✦ FULL OF OATS ✦ ONLY GOOD STUFF ✦ &nbsp;</div></div>
+
+    <section class="proof">
+      <div><strong>60 sec</strong><span>From cup to comfort</span></div>
+      <div><strong>10g</strong><span>Protein in every cup</span></div>
+      <div><strong>0*</strong><span>Weird, mystery ingredients</span></div>
+    </section>
+
+    <section class="flavours" id="flavours">
+      <div class="section-head">
+        <div><div class="eyebrow">Pick your porridge</div><h2>Three cupfuls.</h2></div>
+        <p>One free spoon included.</p>
+      </div>
+      <div class="cards">
+        <article class="card"><div class="flavour-art">🍎</div><div class="flavour-copy"><div><h3>Apple &amp; Cinnamon</h3><p>Sweet, cosy, classic.</p></div><span class="price">£1.50</span></div></article>
+        <article class="card"><div class="flavour-art">🍌</div><div class="flavour-copy"><div><h3>Banana &amp; Cacao</h3><p>Dark, creamy, powerful.</p></div><span class="price">£1.50</span></div></article>
+        <article class="card"><div class="flavour-art">🫐</div><div class="flavour-copy"><div><h3>Berry &amp; Vanilla</h3><p>Bright, smooth, zingy.</p></div><span class="price">£1.50</span></div></article>
+      </div>
+    </section>
+
+    <section class="story" id="story">
+      <div class="story-art"><div style="display:flex; flex-direction:column; align-items:center; font-weight:700; margin-bottom:8px;"><span>Hover over me</span><span aria-hidden="true" style="font-size:1.5em; line-height:1;">↓</span></div><div class="blazer" title="Blazer"><div class="pocket" title="Pocket"><div class="pocket-cup" title="Porridge"></div></div></div></div>
+      <div class="story-copy">
+        <div class="eyebrow">The pocket brief</div>
+        <h2>Breakfast for the dressed.</h2>
+        <p>Form-time in five? Rush to the canteen, and carry a  proper serving of oats — without juggling a bowl.</p>
+        <p><strong>Our slim, structured cups fit inside a standard blazer side pocket.</strong></p>
+      </div>
+    </section>
+
+    <section class="thumbs-up" aria-labelledby="thumbs-up-title" style="padding:48px 20px 72px; text-align:center;">
+      <div class="eyebrow">Your verdict</div>
+      <h2 id="thumbs-up-title" style="margin:0 0 12px; font-size:clamp(2rem, 4vw, 3rem);">Give me a thumbs up.</h2>
+      <p style="max-width:620px; margin:0 auto 20px; color:#4c5a4d; font-size:1.05rem;">If this is the breakfast of the future, show it some love.</p>
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:14px;">
+        <button id="thumbs-up-button" type="button" aria-label="Give Pocket-Porridge a thumbs up" style="appearance:none; border:none; border-radius:999px; background:#1f2f24; color:#f5f0e6; font:inherit; font-weight:700; padding:14px 24px; cursor:pointer; box-shadow:0 10px 22px rgba(31,47,36,.18);">👍 Thumbs up</button>
+        <span id="thumbs-up-count" aria-live="polite" style="font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#5e6d5d; font-size:.78rem;">0 approved</span>
+      </div>
+        <p id="thumbs-up-status" role="status" aria-live="polite" style="min-height:1.4em; margin:12px 0 0; color:#5e6d5d; font-size:.9rem;"></p>
+    </section>
+  </main>
+
+  <footer><strong>Pocket-Porridge™</strong><span>Breakfast, on the go.</span><small>* Does Wǒ de Asir count?</small><a href="pocket-porridge-utils.py">Database utilities</a></footer>
+    <script>
+      (() => {
+        const button = document.getElementById('thumbs-up-button');
+        const countLabel = document.getElementById('thumbs-up-count');
+        const status = document.getElementById('thumbs-up-status');
+        const LIKED_KEY = 'pocket-porridge-liked';
+        const COUNT_KEY = 'pocket-porridge-like-count';
+
+        const storage = {
+          getItem(key) {
+            try {
+              return window.localStorage.getItem(key);
+            } catch (error) {
+              return null;
+            }
+          },
+          setItem(key, value) {
+            try {
+              window.localStorage.setItem(key, value);
+              return true;
+            } catch (error) {
+              return false;
+            }
+          }
+        };
+
+        let liked = storage.getItem(LIKED_KEY) === 'true';
+
+        function readCount() {
+          const value = storage.getItem(COUNT_KEY);
+          const count = Number.parseInt(value ?? '0', 10);
+          return Number.isSafeInteger(count) && count >= 0 ? count : 0;
+        }
+
+        function render(count) {
+          countLabel.textContent = `${count} ${count === 1 ? 'like' : 'likes'}`;
+          button.textContent = liked ? '👎 Unlike' : '👍 Thumbs up';
+          button.setAttribute('aria-label', liked ? 'Unlike Pocket-Porridge' : 'Give Pocket-Porridge a thumbs up');
+          button.setAttribute('aria-pressed', String(liked));
+        }
+
+        function saveLike(nextLiked) {
+          try {
+            const currentCount = readCount();
+            let nextCount = currentCount;
+
+            if (nextLiked && !liked) {
+              nextCount += 1;
+            } else if (!nextLiked && liked) {
+              nextCount = Math.max(0, currentCount - 1);
+            }
+
+            liked = nextLiked;
+
+            if (!storage.setItem(COUNT_KEY, String(nextCount))) {
+              throw new Error('Storage unavailable');
+            }
+
+            if (!storage.setItem(LIKED_KEY, String(liked))) {
+              throw new Error('Storage unavailable');
+            }
+
+            render(nextCount);
+            status.textContent = '';
+          } catch (error) {
+            status.textContent = 'Likes could not be saved in this browser.';
+          }
+        }
+
+        button.addEventListener('click', () => {
+          saveLike(!liked);
+        });
+
+        render(readCount());
+      })();
+    </script>
+  
+</body>
+</html>
