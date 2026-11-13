@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porridge Panic</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+    background:#f4ede2;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+canvas{
+    display:block;
+    background:#e7c85a;
+}
+
+#score{
+    position:absolute;
+    top:20px;
+    left:20px;
+    font-size:28px;
+    font-weight:bold;
+    color:#222;
+    z-index:10;
+}
+
+.controls{
+    position:absolute;
+    top:20px;
+    right:20px;
+    display:flex;
+    gap:10px;
+    z-index:10;
+}
+
+button{
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+#pauseBtn{
+    background:#222;
+    color:white;
+}
+
+#homeBtn{
+    background:#ff7a1a;
+    color:white;
+}
+
+#menu{
+    position:absolute;
+    inset:0;
+    background:#f4ede2;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:100;
+}
+
+.menu-card{
+    background:white;
+    width:min(700px,90%);
+    padding:40px;
+    border-radius:24px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.15);
+}
+
+.menu-card h1{
+    font-size:72px;
+    color:#111;
+    line-height:0.9;
+    margin-bottom:20px;
+}
+
+.menu-card p{
+    font-size:18px;
+    margin-bottom:20px;
+}
+
+.menu-card ul{
+    text-align:left;
+    line-height:1.8;
+    margin-bottom:25px;
+}
+
+#startBtn{
+    background:#ff7a1a;
+    color:white;
+    font-size:20px;
+    padding:16px 30px;
+}
+
+#result{
+    position:absolute;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,0.75);
+    z-index:200;
+}
+
+.result-card{
+    background:white;
+    padding:40px;
+    border-radius:24px;
+    text-align:center;
+}
+
+.result-card h2{
+    font-size:52px;
+    margin-bottom:15px;
+}
+
+.result-card button{
+    margin-top:15px;
+    margin-left:5px;
+    margin-right:5px;
+}
+</style>
+</head>
+<body>
+
+<div id="menu">
+
+    <div class="menu-card">
+
+        <h1>
+            Porridge.<br>
+            In a panic.
+        </h1>
+
+        <p>
+            Catch tasty ingredients for Pocket Porridge and avoid breakfast disasters.
+        </p>
+
+        <ul>
+            <li>⬅️ Move Left using Left Arrow</li>
+            <li>➡️ Move Right using Right Arrow</li>
+            <li>🌾 Oats = +10</li>
+            <li>🍯 Honey = +20</li>
+            <li>🍓 Strawberry = +30</li>
+            <li>🫐 Blueberry = +30</li>
+            <li>📚 Homework = -20</li>
+            <li>🪨 Rock = -30</li>
+            <li>☕ Coffee = -40</li>
+            <li>🏆 Reach 500 points to win</li>
+            <li>💀 Reach -100 points to lose</li>
+        </ul>
+
+        <button id="startBtn">
+            🥣 Start Game
+        </button>
+
+    </div>
+
+</div>
+
+<div id="score">
+    Score: 0
+</div>
+
+<div class="controls">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="homeBtn">🏠 Home</button>
+</div>
+
+<div id="result">
+    <div class="result-card">
+
+        <h2 id="resultTitle"></h2>
+
+        <p id="finalScore"></p>
+
+        <button onclick="location.reload()">
+            🔄 Play Again
+        </button>
+
+        <button onclick="window.location.href='https://pocketporridge.vercel.app/'">
+            🏠 Homepage
+        </button>
+
+    </div>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+
+window.addEventListener("keydown", function(e){
+
+    if(
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === " "
+    ){
+        e.preventDefault();
+    }
+
+});
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const cupImage = new Image();
+cupImage.src = "ppn.png";
+
+let score = 0;
+let paused = false;
+let gameStarted = false;
+let gameOver = false;
+
+const keys = {};
+const objects = [];
+
+const player = {
+    x: canvas.width/2,
+    y: canvas.height-250,
+    width:180,
+    height:220,
+    speed:6
+};
+
+const items = [
+    {emoji:"🌾", value:10},
+    {emoji:"🍯", value:20},
+    {emoji:"🍓", value:30},
+    {emoji:"🫐", value:30},
+    {emoji:"📚", value:-20},
+    {emoji:"🪨", value:-30},
+    {emoji:"☕", value:-40}
+];
+
+document.addEventListener("keydown", (e)=>{
+    keys[e.key]=true;
+});
+
+document.addEventListener("keyup", (e)=>{
+    keys[e.key]=false;
+});
+
+document.getElementById("startBtn").onclick=()=>{
+
+    gameStarted=true;
+
+    document.getElementById("menu").style.display="none";
+};
+
+document.getElementById("pauseBtn").onclick=()=>{
+
+    if(gameOver) return;
+
+    paused=!paused;
+
+    document.getElementById("pauseBtn").innerText=
+        paused ? "▶ Resume" : "⏸ Pause";
+};
+
+document.getElementById("homeBtn").onclick=()=>{
+
+    window.location.href =
+    "https://pocketporridge.vercel.app/";
+};
+
+function spawnItem(){
+
+    const randomItem =
+        items[Math.floor(
+            Math.random()*items.length
+        )];
+
+    objects.push({
+
+        x:Math.random()*(canvas.width-50),
+
+        y:-50,
+
+        speed:1+Math.random(),
+
+        emoji:randomItem.emoji,
+
+        value:randomItem.value
+
+    });
+}
+
+setInterval(()=>{
+
+    if(
+        gameStarted &&
+        !paused &&
+        !gameOver
+    ){
+        spawnItem();
+    }
+
+},1200);
+
+function drawPlayer(){
+
+    for(let i=0;i<4;i++){
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.25)";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            player.x + 60 + i*18,
+            player.y - 20 -
+            Math.sin(Date.now()/350+i)*12,
+            12,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+    }
+
+    if(cupImage.complete){
+
+        ctx.drawImage(
+            cupImage,
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+    }
+}
+
+function update(){
+
+    if(!gameStarted) return;
+    if(paused) return;
+    if(gameOver) return;
+
+    if(keys["ArrowLeft"]){
+
+        player.x -= player.speed;
+    }
+
+    if(keys["ArrowRight"]){
+
+        player.x += player.speed;
+    }
+
+    player.x =
+        Math.max(
+            0,
+            Math.min(
+                canvas.width-player.width,
+                player.x
+            )
+        );
+
+    for(let i=objects.length-1;i>=0;i--){
+
+        const obj=objects[i];
+
+        obj.y += obj.speed;
+
+        const collision =
+
+            obj.x > player.x &&
+            obj.x < player.x + player.width &&
+            obj.y > player.y &&
+            obj.y < player.y + player.height;
+
+        if(collision){
+
+            score += obj.value;
+
+            objects.splice(i,1);
+
+            continue;
+        }
+
+        if(obj.y > canvas.height){
+
+            objects.splice(i,1);
+        }
+    }
+
+    document.getElementById("score").innerText =
+        "Score: " + score;
+
+    if(score >= 500){
+
+        endGame(
+            "🥣 Breakfast Saved!"
+        );
+    }
+
+    if(score <= -100){
+
+        endGame(
+            "💀 Porridge Panic!"
+        );
+    }
+}
+
+function draw(){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    drawPlayer();
+
+    ctx.font = "42px serif";
+
+    objects.forEach(obj=>{
+
+        ctx.fillText(
+            obj.emoji,
+            obj.x,
+            obj.y
+        );
+    });
+}
+
+function endGame(message){
+
+    gameOver = true;
+
+    document.getElementById("result").style.display="flex";
+
+    document.getElementById("resultTitle").innerText =
+        message;
+
+    document.getElementById("finalScore").innerText =
+        "Final Score: " + score;
+}
+
+function gameLoop(){
+
+    update();
+    draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+window.addEventListener("resize",()=>{
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+});
+
+</script>
+  <nav class="nav">
+    <a class="brand" href="#"><img src="ppn.png" alt="Pocket-Porridge" style="height:48px; width:58px; object-fit:cover; object-position:center; display:block;" /></a>
+    <div class="nav-links">
+      <a href="#flavours">Flavours</a>
+      <a href="#story">Our story</a>
+      <a class="nav-cta" href="pu.html">Shop cups</a>
+      <a class="nav-cta" href="game.html">Porridge Panic</a>
+    </div>
+  </nav>
+
+</body>
+</html>
